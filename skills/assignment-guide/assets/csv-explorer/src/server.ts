@@ -1,0 +1,14 @@
+import {Hono} from 'hono';
+import {serve} from '@hono/node-server';
+import {serveStatic} from '@hono/node-server/serve-static';
+import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
+import {CsvStore} from './core.ts';
+const settings=JSON.parse(readFileSync(new URL('../config.json',import.meta.url),'utf8'));
+const directory=process.env.CSV_DATA_DIR||resolve('../..',settings.dataDir);
+const store=new CsvStore(resolve(directory)),app=new Hono();
+app.use('*',async(c,next)=>{if(!['localhost:4310','127.0.0.1:4310'].includes(c.req.header('host')||''))return c.text('Forbidden',403);if(c.req.header('sec-fetch-site')==='cross-site')return c.text('Forbidden',403);const origin=c.req.header('origin');if(origin&&!['http://localhost:4310','http://127.0.0.1:4310'].includes(origin))return c.text('Forbidden',403);c.header('X-Content-Type-Options','nosniff');await next();});
+app.get('/api/files',async c=>{try{return c.json({files:await store.files()});}catch{return c.json({error:'데이터 폴더를 읽을 수 없습니다. CSV_DATA_DIR 설정을 확인하세요.'},400);}});
+app.get('/api/rows',async c=>{try{return c.json(await store.query(c.req.query('file')||'',new URL(c.req.url).searchParams));}catch(e){return c.json({error:e instanceof Error?e.message:'CSV 조회 실패'},400);}});
+app.use('*',serveStatic({root:'./dist'}));
+serve({fetch:app.fetch,hostname:'127.0.0.1',port:4310},()=>console.log(`CSV 탐색기: http://localhost:4310 (데이터: ${resolve(directory)})`)).on('error',e=>{console.error('4310 포트를 사용할 수 없습니다:',e.message);process.exit(1);});
