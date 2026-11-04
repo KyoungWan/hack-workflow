@@ -1,6 +1,6 @@
 interface:
   display_name: "과제 수행 가이드"
-  short_description: "과제 해석·데이터 검증·인증·보고서·구현 점검·결과 설명·작업 인계"
+  short_description: "과제 해석·데이터 검증·인증·보고서·구현 점검·결과 설명·문제 생성·작업 인계"
   default_prompt: "$assignment-guide 사용할 수 있는 기능을 알려줘."
 policy:
   allow_implicit_invocation: false

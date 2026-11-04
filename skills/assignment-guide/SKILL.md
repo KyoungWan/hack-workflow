@@ -1,12 +1,13 @@
 ---
 name: assignment-guide
-description: 과제의 README 이해부터 구현·검증·설명까지 요청한 작업을 돕고, 대화에서 합의한 할 일·가정·보류 사항을 추적해 다음 작업을 안내한다. “지금 뭐 해야 하지”, “다음 단계” 요청에도 사용하며 과제별 고정 절차를 강제하지 않는다.
+description: 과제의 README 이해부터 구현·검증·설명과 후속 문제 생성까지 요청한 작업을 돕고, 대화에서 합의한 할 일·가정·보류 사항을 추적해 다음 작업을 안내한다. “지금 뭐 해야 하지”, “다음 단계”, “문제 만들어줘” 요청에도 사용하며 과제별 고정 절차를 강제하지 않는다.
 ---
 
 # 과제 수행 가이드
 
 ## 사용법
 
+- 문제 생성: `$assignment-guide 문제 만들어줘`로 15개 문항을 보고 번호를 선택한다. 선택한 문항을 현재 과제와 구현 상황에 맞춘 문제로 구체화한다.
 - 시작: `$assignment-guide README 해석해줘`로 과제를 이해한다. 이미 진행 중이면 `$assignment-guide 지금 뭐 해야 하지?`로 현재 상태와 다음 작업을 안내받는다.
 - 계획: `$assignment-guide 어떻게 구현하면 좋을까?`로 과제에 맞는 할 일 목록을 함께 정한다. 특정 기능 이름을 외울 필요는 없다.
 - 진행: 합의한 작업을 요청하고, 중간에 `다음에 뭘 해야 해?`, `이건 나중에 하자`, `이 조건은 이렇게 가정하자`처럼 말한다. 합의된 할 일·보류·가정을 추적하되 다음 단계 안내만 요청하면 구현을 시작하지 않는다.
@@ -30,6 +31,7 @@ description: 과제의 README 이해부터 구현·검증·설명까지 요청�
 | assignment-guide 보고서 작성해줘 | 보고서 작성 | [references/report.md](references/report.md) |
 | assignment-guide 구현 점검해줘 | 요구사항 대비 구현 점검 | [references/implementation-review.md](references/implementation-review.md) |
 | assignment-guide 결과 설명해줘 / 발표 연습하자 | 결과 설명·발표 연습 | [references/explain-artifact.md](references/explain-artifact.md) |
+| assignment-guide 문제 만들어줘 / 3번 문제 만들어줘 | 후속 문제 생성 | [references/follow-up-questions.md](references/follow-up-questions.md) |
 | assignment-guide 다음 세션에 넘길 내용 정리해줘 / 인계 기록에서 재개해줘 | 작업 인계·재개 | [references/session-handoff.md](references/session-handoff.md) |
 
 - 표현이 달라도 의미가 명확하면 해당 기능을 실행한다.

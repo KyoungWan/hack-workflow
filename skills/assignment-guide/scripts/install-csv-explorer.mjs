@@ -2,8 +2,9 @@ import {existsSync,readFileSync,writeFileSync,mkdirSync,cpSync,statSync} from 'n
 import {resolve,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {execFileSync} from 'node:child_process';
-const project=resolve(process.argv[2]||'.'),dataDir=process.argv[3]||'data/provided';
-if(!statSync(resolve(project,dataDir)).isDirectory())throw Error('CSV 데이터 폴더를 확인하세요.');
+const project=resolve(process.argv[2]||'.'),dataDir=process.argv[3];
+if(!dataDir?.trim())throw Error('실제 CSV 데이터 폴더를 두 번째 인자로 지정하세요. 프로젝트 기준 상대 경로 또는 절대 경로를 사용할 수 있습니다.');
+if(!existsSync(resolve(project,dataDir))||!statSync(resolve(project,dataDir)).isDirectory())throw Error('CSV 데이터 폴더를 확인하세요.');
 const target=join(project,'tmp-tools/csv-explorer'),pkgFile=join(project,'package.json');
 const pkg=existsSync(pkgFile)?JSON.parse(readFileSync(pkgFile,'utf8')):{private:true,scripts:{}};
 if(existsSync(target)||pkg.scripts?.csv)throw Error('CSV 탐색기 폴더 또는 csv 스크립트가 이미 있습니다. 기존 구현을 확인하세요.');

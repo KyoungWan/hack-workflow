@@ -1,4 +1,22 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {CsvStore} from './core.ts';
+test('NOT excludes any listed substring and composes with search, filters and pagination',async()=>{
+ const dir=mkdtempSync(join(tmpdir(),'csv-not-'));
+ try{
+  writeFileSync(join(dir,'rows.csv'),'name,group\nAlpha,A\nbeta,A\ngamma,A\n,A\ngamma,B\n100%_done,A\n');
+  const store=new CsvStore(dir);
+  const query=(filters:unknown[],extra:Record<string,string>={})=>store.query('rows.csv',new URLSearchParams({filters:JSON.stringify(filters),...extra}));
+  const excluded={column:'0',value:' ALP, beta, ALP ',operator:'not-contains'};
+  assert.deepEqual((await query([excluded])).rows.map(r=>r.number),[3,4,5,6]);
+  const combined=[excluded,{column:'1',value:'A'}];
+  const page=await query(combined,{size:'1',page:'1'});
+  assert.equal(page.matched,3);assert.deepEqual(page.rows.map(r=>r.number),[4]);
+  assert.deepEqual((await query(combined,{search:'gamma'})).rows.map(r=>r.number),[3]);
+  assert.equal((await query([{column:'0',value:' , ',operator:'not-contains'}])).matched,6);
+  assert.equal((await query([{column:'0',value:'%_',operator:'not-contains'}])).matched,5);
+  assert.equal((await query([{column:'0',value:'ALP',operator:'contains'}])).matched,1);
+  await assert.rejects(()=>query([{column:'0',value:'x',operator:'invalid'}]));
+ }finally{rmSync(dir,{recursive:true,force:true});}
+});
 test('BOM, quoted commas/newlines, duplicate headers, blanks, global search, numeric ordering and reload',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'csv-core-'));try{writeFileSync(join(dir,'edge.csv'),'\uFEFF이름,값,값\r\n"가,나","여러\n줄",10\r\n<script>,,2\r\n');const store=new CsvStore(dir);const result=await store.query('edge.csv',new URLSearchParams());assert.equal(result.total,2);assert.deepEqual(result.headers,['이름','값','값']);assert.deepEqual(result.rows[0].values,['가,나','여러\n줄','10']);assert.equal((await store.query('edge.csv',new URLSearchParams({search:'줄'}))).matched,1);assert.equal((await store.query('edge.csv',new URLSearchParams({sort:'2',mode:'number',size:'1'}))).rows[0].values[2],'2');assert.equal((await store.query('edge.csv',new URLSearchParams({column:'0',filter:'<script>'}))).matched,1);await assert.rejects(()=>store.query('../secret',new URLSearchParams()));await assert.rejects(()=>store.query('edge.csv',new URLSearchParams({sort:'0;DROP'})));writeFileSync(join(dir,'edge.csv'),'a,b\nnew,record\n');assert.equal((await store.query('edge.csv',new URLSearchParams())).total,1);writeFileSync(join(dir,'bad.csv'),'a,b\n1,2,3\n');await assert.rejects(()=>store.query('bad.csv',new URLSearchParams()));}finally{rmSync(dir,{recursive:true,force:true});}
 });

@@ -35,17 +35,19 @@ $assignment-guide auth 웹 구현해줘.
 $assignment-guide 보고서 작성해줘.
 $assignment-guide 구현 점검해줘.
 $assignment-guide 결과 설명해줘.
+$assignment-guide 문제 만들어줘.
 $assignment-guide 다음 세션에 넘길 내용 정리해줘.
 $assignment-guide 인계 기록에서 재개해줘.
 $frontend-design 과제 요구사항에 맞는 화면을 구현해줘.
 ```
 
 `frontend-design`은 별도 스킬이며 과제 가이드가 자동으로 호출하지 않는다.
+“문제 만들어줘”는 15개 문항을 먼저 보여준다. 번호를 선택하면 현재 과제와 구현 상황에 맞는 문제를 생성한다. 정답·해설은 별도로 요청할 때 제공한다.
 인증 템플릿의 동봉 테스트는 Node.js 24에서 `node --test skills/assignment-guide/assets/auth/common.test.mjs`로 실행할 수 있다.
 
 ## 포함된 스킬
 
-- [assignment-guide](skills/assignment-guide/SKILL.md): 과제 해석·CSV 탐색 UI·데이터 검증·인증·보고서·구현 점검·결과 설명·작업 인계.
+- [assignment-guide](skills/assignment-guide/SKILL.md): 과제 해석·CSV 탐색 UI·데이터 검증·인증·보고서·구현 점검·결과 설명·문제 생성·작업 인계.
 - [frontend-design](skills/frontend-design/SKILL.md): 프런트엔드 디자인 스킬. [Apache 2.0 라이선스](skills/frontend-design/LICENSE.txt).
 
 외부 자료의 저작권 고지와 라이선스 전문은 해당 폴더에 보존한다.
