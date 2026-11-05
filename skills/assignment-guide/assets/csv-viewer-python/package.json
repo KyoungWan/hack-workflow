@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.ts --bundle --platform=browser --format=iife --target=es2020 --legal-comments=inline --outfile=static/app.js",
+    "test": "tsx --test src/*.test.ts"
+  },
+  "dependencies": {
+    "csv-parse": "7.0.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "tsx": "4.23.15"
+  }
+}

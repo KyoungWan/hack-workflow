@@ -25,7 +25,7 @@ description: 과제의 README 이해부터 구현·검증·설명과 후속 문�
 | assignment-guide 지금 뭐 해야 하지? / 어떻게 구현할까? | 진행 안내·할 일 정리 | 아래 「합의한 할 일 기반 진행 안내」 |
 | assignment-guide 중간점검해줘 | 대화 기반 누락 점검 | 아래 「대화 중 중간점검 제안」 |
 | assignment-guide README 해석해줘 | README 해석 | [references/readme.md](references/readme.md) |
-| assignment-guide CSV 탐색 UI 만들어줘 | 독립 Next.js 앱의 CSV 탐색 UI (/data) | [references/csv-explorer.md](references/csv-explorer.md) |
+| assignment-guide CSV 탐색 UI 만들어줘 | 독립 Next.js 앱의 CSV 탐색 UI (/data), Next.js 사용 불가 시 Python 대안 | [references/csv-explorer.md](references/csv-explorer.md) |
 | assignment-guide 데이터 검증해줘 | 데이터 검증 | [references/data-validation.md](references/data-validation.md) |
 | assignment-guide auth 웹 구현해줘 | 인증 웹 구현 | [references/auth-web.md](references/auth-web.md) |
 | assignment-guide 보고서 작성해줘 | 보고서 작성 | [references/report.md](references/report.md) |
