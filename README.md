@@ -41,6 +41,8 @@ $assignment-guide 인계 기록에서 재개해줘.
 $frontend-design 과제 요구사항에 맞는 화면을 구현해줘.
 ```
 
+CSV 탐색 UI는 별도의 기본 Next.js 앱을 새 폴더에 생성하고 `/data`에서 제공한다. 앱 생성 후 서버는 자동으로 실행하지 않는다. 안내받은 앱 폴더에서 사용자가 직접 `npm run dev`를 실행하며 정상 동작한 Next.js 앱의 버전을 사용한다. 서버는 CSV 원문만 전달하고 브라우저가 검색·필터·정렬을 처리한다.
+
 `frontend-design`은 별도 스킬이며 과제 가이드가 자동으로 호출하지 않는다.
 “문제 만들어줘”는 15개 문항을 먼저 보여준다. 번호를 선택하면 현재 과제와 구현 상황에 맞는 문제를 생성한다. 정답·해설은 별도로 요청할 때 제공한다.
 인증 템플릿의 동봉 테스트는 Node.js 24에서 `node --test skills/assignment-guide/assets/auth/common.test.mjs`로 실행할 수 있다.

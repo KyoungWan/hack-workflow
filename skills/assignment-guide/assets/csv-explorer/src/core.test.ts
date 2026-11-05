@@ -1,4 +1,5 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {CsvStore} from './core.ts';
+import test from 'node:test';import assert from 'node:assert/strict';import {mkdtempSync,writeFileSync,rmSync} from 'node:fs';import {tmpdir} from 'node:os';import {join} from 'node:path';import {CsvTable} from './core.ts';import {CsvFiles} from './files.ts';
+class CsvStore extends CsvFiles {async query(id:string,params:URLSearchParams){return new CsvTable(await this.read(id)).query(params);}}
 test('NOT excludes any listed substring and composes with search, filters and pagination',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'csv-not-'));
  try{

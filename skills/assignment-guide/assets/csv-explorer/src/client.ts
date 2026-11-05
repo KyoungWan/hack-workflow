@@ -1,5 +1,10 @@
-import './style.css';
+import {CsvTable} from './core';
 import {rowClipboardText} from './clipboard.ts';
+export function mountExplorer(){
+let disposed=false;
+let dataset:CsvTable|undefined,loadedFile='';
+const paint=()=>new Promise<void>(resolve=>setTimeout(resolve,0));
+const filesController=new AbortController();
 const $=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
 const input=(id:string)=>$(id) as HTMLInputElement|HTMLSelectElement;
 function setSidebar(collapsed:boolean){
@@ -19,7 +24,8 @@ function maximizeTable(enabled:boolean){
  button.title=enabled?'메뉴와 검색 영역 다시 표시':'메뉴와 검색 영역을 숨기고 표 크게 보기';
 }
 $('maximize-table').onclick=()=>maximizeTable(!document.body.classList.contains('table-maximized'));
-document.addEventListener('keydown',event=>{if(event.key==='Escape'&&document.body.classList.contains('table-maximized')){maximizeTable(false);$('maximize-table').focus();}});
+const onKeyDown=(event:KeyboardEvent)=>{if(event.key==='Escape'&&document.body.classList.contains('table-maximized')){maximizeTable(false);$('maximize-table').focus();}};
+document.addEventListener('keydown',onKeyDown);
 
 
 let file='',page=0,total=0,size=50,ticket=0;
@@ -28,8 +34,8 @@ const headers:string[]=[];
 let noticeTimer:ReturnType<typeof setTimeout>;
 async function copyCell(value:string,message='셀 내용이 복사되었습니다.'){
  clearTimeout(noticeTimer);
- try{await navigator.clipboard.writeText(value);$('notice').textContent=message;}
- catch{$('notice').textContent='복사하지 못했습니다. 브라우저의 클립보드 권한을 확인하세요.';}
+ try{await navigator.clipboard.writeText(value);if(disposed)return;$('notice').textContent=message;}
+ catch{if(disposed)return;const fallback=$('copy-fallback') as HTMLTextAreaElement;fallback.hidden=false;fallback.value=value;fallback.focus();fallback.select();$('notice').textContent='아래 텍스트를 Ctrl/Cmd+C로 복사하세요.';}
  $('notice').hidden=false;noticeTimer=setTimeout(()=>{$('notice').hidden=true;},3000);
 }
 
@@ -47,7 +53,15 @@ function addCondition(kind:'filters'|'sorts'){
 }
 function conditions(){const filters=Array.from($('filters').children).map(row=>({column:(row.querySelector('select') as HTMLSelectElement).value,value:(row.querySelector('input') as HTMLInputElement).value,operator:(row.querySelector('[data-field=조건]') as HTMLSelectElement).value})).filter(f=>f.column!==''||f.value!=='');const sorts=Array.from($('sorts').children).map(row=>{const fields=row.querySelectorAll('select');return {column:fields[0].value,mode:fields[1].value,order:fields[2].value};}).filter(s=>s.column!=='');return {filters,sorts};}
 $('add-filter').onclick=()=>addCondition('filters');$('add-sort').onclick=()=>addCondition('sorts');
-async function load(reset=false){if(!file)return;const serial=++ticket;queryController?.abort();queryController=new AbortController();if(reset)page=0;const params=new URLSearchParams({file,page:String(page),size:String(size)});params.set('search',input('search').value);const c=conditions();params.set('filters',JSON.stringify(c.filters));params.set('sorts',JSON.stringify(c.sorts));$('status').textContent='데이터를 읽는 중…';$('error').textContent='';try{const d=await json('/api/rows?'+params,queryController.signal);if(serial!==ticket)return;
+async function load(reset=false){if(!file)return;const serial=++ticket;queryController?.abort();queryController=new AbortController();if(reset)page=0;const params=new URLSearchParams({file,page:String(page),size:String(size)});params.set('search',input('search').value);const c=conditions();params.set('filters',JSON.stringify(c.filters));params.set('sorts',JSON.stringify(c.sorts));$('status').textContent='CSV 파일 읽는 중…';$('error').textContent='';try{if(!dataset||loadedFile!==file){
+ const response=await fetch('/api/file?'+new URLSearchParams({file}),{signal:queryController.signal,cache:'no-store'});
+ if(!response.ok){const error=await response.json();throw Error(error.error||'CSV 읽기 실패');}
+ const text=await response.text();if(serial!==ticket)return;
+ $('status').textContent='CSV 해석 중…';await paint();if(serial!==ticket)return;
+ dataset=new CsvTable(text);loadedFile=file;
+ }
+ $('status').textContent='검색·정렬 중…';await paint();if(serial!==ticket)return;
+ const d=dataset.query(params);$('status').textContent='표 표시 중…';await paint();if(serial!==ticket)return;
  if(!headers.length){headers.push(...d.headers);addCondition('filters');addCondition('sorts');}
  page=d.page;total=d.matched;const table=$('table');table.replaceChildren();const head=document.createElement('thead'),hr=document.createElement('tr');for(const [i,text] of ['행 번호',...d.headers].entries()){const th=document.createElement('th');th.textContent=text||'(빈 헤더)';if(i)th.className='col-'+((i-1)%8);const grip=document.createElement('span');grip.className='grip';grip.onpointerdown=e=>{e.preventDefault();const start=e.clientX,width=th.getBoundingClientRect().width;grip.setPointerCapture(e.pointerId);grip.onpointermove=event=>{th.style.minWidth=th.style.width=Math.max(90,width+event.clientX-start)+'px';};grip.onpointerup=()=>{grip.onpointermove=null;};};th.append(grip);hr.append(th);}head.append(hr);table.append(head);
  const body=document.createElement('tbody');for(const row of d.rows){const tr=document.createElement('tr'),n=document.createElement('th');n.scope='row';const rowButton=document.createElement('button');rowButton.type='button';rowButton.className='row-copy';rowButton.textContent=String(row.number);rowButton.title='헤더와 행 번호를 포함한 행 전체 복사';rowButton.setAttribute('aria-label',`${row.number}번 행 전체 복사 (헤더 포함)`);rowButton.onclick=()=>copyCell(rowClipboardText(d.headers,row.number,row.values),'헤더와 행 전체가 복사되었습니다.');n.append(rowButton);tr.append(n);row.values.forEach((value:string,i:number)=>{const td=document.createElement('td');td.className='col-'+(i%8);const b=document.createElement('button');b.className='cell';b.textContent=value===''?'(빈 값)':value;b.title='클릭하여 전체 내용 복사';b.onclick=()=>copyCell(value);td.append(b);tr.append(td);});body.append(tr);}table.append(body);
@@ -58,4 +72,10 @@ async function load(reset=false){if(!file)return;const serial=++ticket;queryCont
 }
 function clear(){input('search').value='';$('filters').replaceChildren();$('sorts').replaceChildren();if(headers.length){addCondition('filters');addCondition('sorts');}updateConditions();}
 $('query').onsubmit=e=>{e.preventDefault();load(true);};$('reset').onclick=()=>{clear();load(true);};$('prev').onclick=()=>{page--;load();};$('next').onclick=()=>{page++;load();};input('size').onchange=()=>{size=Number(input('size').value);load(true);};
-json('/api/files').then(async d=>{if(!d.files.length){$('status').textContent='CSV 파일이 없습니다.';return;}for(const f of d.files){const b=document.createElement('button');b.textContent=f.id;const small=document.createElement('small');small.textContent=`${(f.bytes/1024).toFixed(1)} KB`;b.append(small);b.onclick=()=>{document.querySelectorAll('nav button').forEach(n=>n.removeAttribute('aria-current'));b.setAttribute('aria-current','true');file=f.id;headers.length=0;clear();$('table').replaceChildren();load(true);};$('files').append(b);}($('files').firstElementChild as HTMLButtonElement).click();}).catch(e=>{$('error').textContent=e.message;});
+$('status').textContent='파일 목록 불러오는 중…';
+$('files').replaceChildren();
+clear();
+json('/api/files',filesController.signal).then(async d=>{if(disposed)return;if(!d.files.length){$('status').textContent='CSV 파일이 없습니다.';return;}for(const f of d.files){const b=document.createElement('button');b.textContent=f.id;const small=document.createElement('small');small.textContent=`${(f.bytes/1024).toFixed(1)} KB`;b.append(small);b.onclick=()=>{document.querySelectorAll('nav button').forEach(n=>n.removeAttribute('aria-current'));b.setAttribute('aria-current','true');file=f.id;dataset=undefined;loadedFile='';headers.length=0;clear();$('table').replaceChildren();load(true);};$('files').append(b);}($('files').firstElementChild as HTMLButtonElement).click();}).catch(e=>{if(!disposed){$('status').textContent='파일 목록 조회 실패';$('error').textContent=e.message;}});
+
+return ()=>{disposed=true;ticket++;filesController.abort();queryController?.abort();clearTimeout(noticeTimer);document.removeEventListener('keydown',onKeyDown);document.body.classList.remove('sidebar-collapsed','table-maximized');};
+}

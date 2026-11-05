@@ -25,7 +25,7 @@ description: 과제의 README 이해부터 구현·검증·설명과 후속 문�
 | assignment-guide 지금 뭐 해야 하지? / 어떻게 구현할까? | 진행 안내·할 일 정리 | 아래 「합의한 할 일 기반 진행 안내」 |
 | assignment-guide 중간점검해줘 | 대화 기반 누락 점검 | 아래 「대화 중 중간점검 제안」 |
 | assignment-guide README 해석해줘 | README 해석 | [references/readme.md](references/readme.md) |
-| assignment-guide CSV 탐색 UI 만들어줘 | CSV 탐색 UI | [references/csv-explorer.md](references/csv-explorer.md) |
+| assignment-guide CSV 탐색 UI 만들어줘 | 독립 Next.js 앱의 CSV 탐색 UI (/data) | [references/csv-explorer.md](references/csv-explorer.md) |
 | assignment-guide 데이터 검증해줘 | 데이터 검증 | [references/data-validation.md](references/data-validation.md) |
 | assignment-guide auth 웹 구현해줘 | 인증 웹 구현 | [references/auth-web.md](references/auth-web.md) |
 | assignment-guide 보고서 작성해줘 | 보고서 작성 | [references/report.md](references/report.md) |
@@ -50,6 +50,8 @@ description: 과제의 README 이해부터 구현·검증·설명과 후속 문�
 - 추적을 위해 별도 TODO나 진도 문서를 임의로 만들지 않는다. 대화와 프로젝트에서 허용된 기존 기록을 활용하며, 새 세션에서 기록 없이 이전 상태를 기억한다고 약속하지 않는다.
 
 ## 공통 원칙
+
+- CSV 탐색 앱 생성 후 서버는 사용자가 직접 실행한다. 에이전트는 서버를 자동 시작하지 않고 실행할 폴더·명령과 `/data` 접속 방법을 안내한다.
 
 - 실행 지침은 이 폴더에 포함된 본문과 참고 파일을 사용하며, 스킬 실행을 위해 외부 원본을 추가 fetch하지 않는다.
 - 현재 과제 원문과 기존 구현을 근거로 작업하고, 원문에 없는 조건을 필수 요구로 추가하지 않는다.
