@@ -1,0 +1,31 @@
+course_id,name,category,required,min_level,capacity_per_session
+CS01,신입 온보딩 1기,ONBOARD,true,0,15
+CS02,신입 온보딩 2기,ONBOARD,true,0,30
+CS03,신입 온보딩 3기,ONBOARD,true,0,30
+CS04,신입 온보딩 4기,ONBOARD,true,0,15
+CS05,신입 온보딩 5기,ONBOARD,true,0,30
+CS06,신입 온보딩 6기,ONBOARD,true,0,20
+CS07,컴플라이언스 1기,COMPLIANCE,true,0,30
+CS08,컴플라이언스 2기,COMPLIANCE,true,0,20
+CS09,컴플라이언스 3기,COMPLIANCE,true,0,15
+CS10,컴플라이언스 4기,COMPLIANCE,true,0,25
+CS11,컴플라이언스 5기,COMPLIANCE,true,0,25
+CS12,컴플라이언스 6기,COMPLIANCE,true,0,20
+CS13,리더십 1기,LEADERSHIP,false,3,15
+CS14,리더십 2기,LEADERSHIP,false,3,25
+CS15,리더십 3기,LEADERSHIP,false,3,30
+CS16,리더십 4기,LEADERSHIP,false,3,30
+CS17,리더십 5기,LEADERSHIP,false,3,30
+CS18,리더십 6기,LEADERSHIP,false,3,30
+CS19,데이터 역량 1기,DATA,false,0,25
+CS20,데이터 역량 2기,DATA,false,0,20
+CS21,데이터 역량 3기,DATA,false,0,30
+CS22,데이터 역량 4기,DATA,false,0,20
+CS23,데이터 역량 5기,DATA,false,0,20
+CS24,데이터 역량 6기,DATA,false,0,20
+CS25,어학 1기,LANGUAGE,false,0,15
+CS26,어학 2기,LANGUAGE,false,0,25
+CS27,어학 3기,LANGUAGE,false,0,30
+CS28,어학 4기,LANGUAGE,false,0,15
+CS29,어학 5기,LANGUAGE,false,0,25
+CS30,어학 6기,LANGUAGE,false,0,30
