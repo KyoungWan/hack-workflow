@@ -1,4 +1,5 @@
 import './style.css';
+import {rowClipboardText} from './clipboard.ts';
 const $=<T extends HTMLElement>(id:string)=>document.getElementById(id) as T;
 const input=(id:string)=>$(id) as HTMLInputElement|HTMLSelectElement;
 function setSidebar(collapsed:boolean){
@@ -25,9 +26,9 @@ let file='',page=0,total=0,size=50,ticket=0;
 let queryController:AbortController|undefined;
 const headers:string[]=[];
 let noticeTimer:ReturnType<typeof setTimeout>;
-async function copyCell(value:string){
+async function copyCell(value:string,message='셀 내용이 복사되었습니다.'){
  clearTimeout(noticeTimer);
- try{await navigator.clipboard.writeText(value);$('notice').textContent='셀 내용이 복사되었습니다.';}
+ try{await navigator.clipboard.writeText(value);$('notice').textContent=message;}
  catch{$('notice').textContent='복사하지 못했습니다. 브라우저의 클립보드 권한을 확인하세요.';}
  $('notice').hidden=false;noticeTimer=setTimeout(()=>{$('notice').hidden=true;},3000);
 }
@@ -49,7 +50,7 @@ $('add-filter').onclick=()=>addCondition('filters');$('add-sort').onclick=()=>ad
 async function load(reset=false){if(!file)return;const serial=++ticket;queryController?.abort();queryController=new AbortController();if(reset)page=0;const params=new URLSearchParams({file,page:String(page),size:String(size)});params.set('search',input('search').value);const c=conditions();params.set('filters',JSON.stringify(c.filters));params.set('sorts',JSON.stringify(c.sorts));$('status').textContent='데이터를 읽는 중…';$('error').textContent='';try{const d=await json('/api/rows?'+params,queryController.signal);if(serial!==ticket)return;
  if(!headers.length){headers.push(...d.headers);addCondition('filters');addCondition('sorts');}
  page=d.page;total=d.matched;const table=$('table');table.replaceChildren();const head=document.createElement('thead'),hr=document.createElement('tr');for(const [i,text] of ['행 번호',...d.headers].entries()){const th=document.createElement('th');th.textContent=text||'(빈 헤더)';if(i)th.className='col-'+((i-1)%8);const grip=document.createElement('span');grip.className='grip';grip.onpointerdown=e=>{e.preventDefault();const start=e.clientX,width=th.getBoundingClientRect().width;grip.setPointerCapture(e.pointerId);grip.onpointermove=event=>{th.style.minWidth=th.style.width=Math.max(90,width+event.clientX-start)+'px';};grip.onpointerup=()=>{grip.onpointermove=null;};};th.append(grip);hr.append(th);}head.append(hr);table.append(head);
- const body=document.createElement('tbody');for(const row of d.rows){const tr=document.createElement('tr'),n=document.createElement('th');n.textContent=String(row.number);tr.append(n);row.values.forEach((value:string,i:number)=>{const td=document.createElement('td');td.className='col-'+(i%8);const b=document.createElement('button');b.className='cell';b.textContent=value===''?'(빈 값)':value;b.title='클릭하여 전체 내용 복사';b.onclick=()=>copyCell(value);td.append(b);tr.append(td);});body.append(tr);}table.append(body);
+ const body=document.createElement('tbody');for(const row of d.rows){const tr=document.createElement('tr'),n=document.createElement('th');n.scope='row';const rowButton=document.createElement('button');rowButton.type='button';rowButton.className='row-copy';rowButton.textContent=String(row.number);rowButton.title='헤더와 행 번호를 포함한 행 전체 복사';rowButton.setAttribute('aria-label',`${row.number}번 행 전체 복사 (헤더 포함)`);rowButton.onclick=()=>copyCell(rowClipboardText(d.headers,row.number,row.values),'헤더와 행 전체가 복사되었습니다.');n.append(rowButton);tr.append(n);row.values.forEach((value:string,i:number)=>{const td=document.createElement('td');td.className='col-'+(i%8);const b=document.createElement('button');b.className='cell';b.textContent=value===''?'(빈 값)':value;b.title='클릭하여 전체 내용 복사';b.onclick=()=>copyCell(value);td.append(b);tr.append(td);});body.append(tr);}table.append(body);
  $('title').textContent=file;$('status').textContent=`전체 ${d.total.toLocaleString()}행 · ${headers.length}열 / 검색 결과 ${d.matched.toLocaleString()}행`;
  $('page').textContent=`${page+1} / ${Math.max(1,Math.ceil(total/size))} 페이지 · ${total?page*size+1:0}–${Math.min((page+1)*size,total)}행`;
  ($('prev') as HTMLButtonElement).disabled=page===0;($('next') as HTMLButtonElement).disabled=(page+1)*size>=total;
